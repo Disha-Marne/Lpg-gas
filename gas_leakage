@@ -1,0 +1,48 @@
+#include <Servo.h>
+
+// Define pin connections & constants
+const int mq5AnalogPin = A0;   // MQ-5 sensor's analog output connected to A0
+const int servoPin = 5;        // Servo signal connected to D5
+const int relayPin = 2;        // Relay signal connected to D2
+const int buzzerPin = 6;       // Buzzer connected to D6
+const int fanPin = 12;         // Fan control signal connected to D12
+const int gasThreshold = 300;  // Threshold for gas concentration
+
+Servo myServo;  // Create servo object
+
+void setup() {
+  // Set pin modes
+  pinMode(mq5AnalogPin, INPUT);
+  pinMode(relayPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(fanPin, OUTPUT);
+  
+  // Attach the servo to the correct pin
+  myServo.attach(servoPin);
+  
+  // Initialize the relay and fan to be off
+  digitalWrite(relayPin, LOW);
+  digitalWrite(fanPin, LOW);
+}
+
+void loop() {
+  // Read the value from the gas sensor
+  int gasValue = analogRead(mq5AnalogPin);
+
+  if (gasValue > gasThreshold) {
+    // If gas concentration exceeds the threshold:
+    digitalWrite(relayPin, HIGH); // Turn on the relay
+    digitalWrite(buzzerPin, HIGH); // Activate the buzzer
+    digitalWrite(fanPin, HIGH);   // Turn on the fan
+    myServo.write(75); // Rotate servo to 75 degrees (or desired position)
+  } else {
+    // If gas concentration is below the threshold:
+    digitalWrite(relayPin, LOW); // Turn off the relay
+    digitalWrite(buzzerPin, LOW); // Deactivate the buzzer
+    digitalWrite(fanPin, LOW);   // Turn off the fan
+    myServo.write(180); // Rotate servo to 180 degrees (or desired position)
+  }
+
+  // Wait a bit before reading again
+  delay(1000);
+}
